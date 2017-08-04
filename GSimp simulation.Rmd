@@ -11,10 +11,9 @@ output:
 ```{r, message=FALSE}
 options(stringsAsFactors = F)
 source('Trunc_KNN/Imput_funcs.r')
-source('LfCs_eval.R')
-source('LfCs_imp.R')
+source('MNAR_evaluation.R')
+source('GSimp.R')
 require(magrittr)
-require(qvalue)
 require(pheatmap)
 ```
 
