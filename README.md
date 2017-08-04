@@ -1,7 +1,8 @@
 # GSimp
 GSimp is a Gibbs sampler-based missing value imputation approach.
 
-*GSimp simulation.Rmd* is a vignette of using GSimp for the MNAR imputation and comparing GSimp with other imputation methods on simulation dataset. It also contains a simulation dataset generation algorithm.
+# *GSimp simulation.Rmd
+is a vignette of using GSimp for the MNAR imputation and comparing GSimp with other imputation methods on simulation dataset. It also contains a simulation dataset generation algorithm.
 
 *GSimp.R* contains the core functions for GSimp.
 
