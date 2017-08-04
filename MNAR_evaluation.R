@@ -5,7 +5,6 @@ require(reshape2)
 require(ggplot2)
 require(ropls)
 source('MVI_global.R')
-# source('Impute_wrapper.R')
 
 # MNAR generation and imputation ------------------------------------------
 MNAR_gen_imp <- function(data_c, mis_var_prop=seq(.1, .8, .1), var_mis_prop=seq(.1, .8, .1), 
