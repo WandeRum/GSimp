@@ -474,9 +474,7 @@ plot(PCA_res$pro_res$HM_GSimp)
 PCA-Procrustes between GSimp (points) and HM (targets)
 \end{center}
 
-3.2 GSimp in simulated data sets
---------------------------------
-
+## 3.2 GSimp in simulated data sets
 ### 3.2.1 Simulated dataset generation
 
 For the simulation dataset, we first calculated the covariance matrix
@@ -615,8 +613,7 @@ sim_MNAR_Ttest_TPR_list_3 <- Ttest_P_cal_plot(impute_results=sim_MNAR_list, grou
 TPR (p-value=.01) of three imputation methods with the increasing number of missing variables
 \end{center}
 
-3.3 GSimp with different iterations
------------------------------------
+## 3.3 GSimp with different iterations
 
 Since GSimp employed an iterative Gibbs sampler method, a large number
 of iterations (iters\_all=20, iters\_each=100) are preferable for the
@@ -678,8 +675,7 @@ SOR of different interations of GSimp with the increasing number of missing vari
 \end{center}
 
 
-4. Concluding remarks
-=====================
+# 4. Concluding remarks
 
 GSimp is a convenient software for the imputation of left-censored MNAR data. With
 proper modifications (e.g., truncation points (**lo** and **hi**), pre-processing approaches), GSimp can be applicable
