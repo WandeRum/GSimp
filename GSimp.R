@@ -154,7 +154,7 @@ multi_impute <- function(data_miss, iters_each=100, iters_all=20, initial='qrilc
   for (i in 1:iters_all) {
     cat('Iteration', i, 'start...')
     
-    ## Parallel computing, don't use it! ##
+    ## Parallel computing ##
     if (n_cores>1) {
       cat(paste0('Parallel computing (n_cores=', n_cores, ')...'))
       ## Parallel on missing variables
