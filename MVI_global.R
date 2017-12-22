@@ -39,23 +39,25 @@ MNAR_generate <- function (data_c, mis_var = 0.5, var_prop = seq(.3, .6, .1)) {
 }
 
 # Scale and recover -------------------------------------------------------
-scale_recover <- function(data, method = 'scale', param_df = NULL) {
+scale_recover <- function(data, method='scale', param_df = NULL) {
   results <- list()
   data_res <- data
-  if (method == 'scale') {
-    param_df <- data.frame(mean = sapply(data, function(x) mean(x, na.rm = T)),
-                           std = sapply(data, function(x) sd(x, na.rm = T)))
-    for (i in 1:ncol(data)) {data_res[, i] <- (data[, i] - param_df$mean[i])/param_df$std[i]}
-    results[[1]] <- data_res
-    results[[2]] <- param_df
-    return (results)
+  if (!is.null(param_df)) {
+    if (method=='scale') {
+      data_res[] <- scale(data, center=param_df$mean, scale=param_df$std)
+    } else if (method=='recover') {
+      data_res[] <- t(t(data)*param_df$std+param_df$mean)
+    }
+  } else {
+    if (method=='scale') {
+      param_df <- data.frame(mean=sapply(data, function(x) mean(x, na.rm=T)), 
+                             std=sapply(data, function(x) sd(x, na.rm=T)))
+      data_res[] <- scale(data, center=param_df$mean, scale=param_df$std)
+    } else {stop('no param_df found for recover...')}
   }
-  else if (method == 'recover' & !is.null(param_df)) {
-    data_res <- data
-    for (i in 1:ncol(data)) {data_res[, i] <- data[, i] * param_df$std[i] + param_df$mean[i]}
-    results[[1]] <- data_res
-    return (results)
-  }
+  results[[1]] <- data_res
+  results[[2]] <- param_df
+  return(results)
 }
 
 # Multiplot 4 ggplot2 -----------------------------------------------------
