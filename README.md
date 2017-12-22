@@ -55,9 +55,7 @@ source('GSimp_evaluation.R')
 source('GSimp.R')
 ```
 
-\begin{center}
 Package Dependencies and Version
-\end{center}
 
 | Package      | Version    |
 |:-------------|:-----------|
@@ -312,9 +310,8 @@ NRMSE_res <- NRMSE_list(imp_list, untargeted_data, method_names)
 NRMSE_res <- round(NRMSE_res, digits = 3)
 kable(NRMSE_res)
 ```
-\begin{center}
+
 NRMSE between imputation methods
-\end{center}
 
 |       |  GSimp|  trKNN|  QRILC|     HM|
 |-------|------:|------:|------:|------:|
@@ -329,9 +326,7 @@ PCA_res <- PCA_pro_list(imp_list, nPCs=3, method_names)
 procrustes_df <- round(PCA_res$pro_ss_df, digits = 3)
 kable(procrustes_df)
 ```
-\begin{center}
 PCA Procrustes results between imputation methods
-\end{center}
 
 |       |  GSimp|  trKNN|  QRILC|     HM|
 |-------|------:|------:|------:|------:|
@@ -345,27 +340,27 @@ plot(PCA_res$pro_res$trKNN_GSimp)
 ```
 
 ![](vignette_files/figure-markdown_github/unnamed-chunk-4-1.png)
-\begin{center}
+
 PCA-Procrustes between GSimp (points) and kNN-TN (targets)
-\end{center}
+
 
 ``` r
 plot(PCA_res$pro_res$QRILC_GSimp)
 ```
 
 ![](vignette_files/figure-markdown_github/unnamed-chunk-4-2.png)
-\begin{center}
+
 PCA-Procrustes between GSimp (points) and QRILC (targets)
-\end{center}
+
 
 ``` r
 plot(PCA_res$pro_res$HM_GSimp)
 ```
 
 ![](vignette_files/figure-markdown_github/unnamed-chunk-4-3.png)
-\begin{center}
+
 PCA-Procrustes between GSimp (points) and HM (targets)
-\end{center}
+
 
 #### 3.1.3.2 Targeted LC/MS dataset
 
@@ -419,9 +414,9 @@ NRMSE_res <- NRMSE_list(imp_list, targeted_data, method_names)
 NRMSE_res <- round(NRMSE_res, digits = 3)
 kable(NRMSE_res)
 ```
-\begin{center}
+
 NRMSE between imputation methods
-\end{center}
+
 
 |       |  GSimp|  trKNN|  QRILC|     HM|
 |-------|------:|------:|------:|------:|
@@ -436,9 +431,9 @@ PCA_res <- PCA_pro_list(imp_list, nPCs=3, method_names)
 procrustes_df <- round(PCA_res$pro_ss_df, digits = 3)
 kable(procrustes_df)
 ```
-\begin{center}
+
 PCA Procrustes results between imputation methods
-\end{center}
+
 
 |       |  GSimp|  trKNN|  QRILC|     HM|
 |-------|------:|------:|------:|------:|
@@ -452,27 +447,27 @@ plot(PCA_res$pro_res$trKNN_GSimp)
 ```
 
 ![](vignette_files/figure-markdown_github/unnamed-chunk-5-1.png)
-\begin{center}
+
 PCA-Procrustes between GSimp (points) and kNN-TN (targets)
-\end{center}
+
 
 ``` r
 plot(PCA_res$pro_res$QRILC_GSimp)
 ```
 
 ![](vignette_files/figure-markdown_github/unnamed-chunk-5-2.png)
-\begin{center}
+
 PCA-Procrustes between GSimp (points) and QRILC (targets)
-\end{center}
+
 
 ``` r
 plot(PCA_res$pro_res$HM_GSimp)
 ```
 
 ![](vignette_files/figure-markdown_github/unnamed-chunk-5-3.png)
-\begin{center}
+
 PCA-Procrustes between GSimp (points) and HM (targets)
-\end{center}
+
 
 ## 3.2 GSimp in simulated data sets
 ### 3.2.1 Simulated dataset generation
@@ -542,9 +537,9 @@ sim_MNAR_NRMSE_rank_list <- NRMSE_rank_cal_plot(sim_MNAR_list, plot=T, x='Miss_N
 ```
 
 ![](vignette_files/figure-markdown_github/unnamed-chunk-9-1.png)
-\begin{center}
+
 SOR of three imputation methods with the increasing number of missing variables
-\end{center}
+
 
 
 ``` r
@@ -556,9 +551,9 @@ sim_MNAR_PCA_ProSS_list <- Procrustes_cal_plot(sim_MNAR_list, DR='PCA', nPCs=2, 
 ```
 
 ![](vignette_files/figure-markdown_github/unnamed-chunk-9-2.png)
-\begin{center}
+
 PCA-Procrustes results of three imputation methods with the increasing number of missing variables
-\end{center}
+
 
 ``` r
 ## PLS-Procrustes and plot
@@ -569,9 +564,9 @@ sim_MNAR_PLS_ProSS_list <- Procrustes_cal_plot(sim_MNAR_list, DR='PLS', nPCs=2, 
 ```
 
 ![](vignette_files/figure-markdown_github/unnamed-chunk-9-3.png)
-\begin{center}
+
 PLS-Procrustes results of three imputation methods with the increasing number of missing variables
-\end{center}
+
 
 ``` r
 ## T-test correlation and plot
@@ -582,9 +577,9 @@ sim_MNAR_Ttest_Cor_list <- Ttest_cor_cal_plot(sim_MNAR_list, group=group, plot=T
 ```
 
 ![](vignette_files/figure-markdown_github/unnamed-chunk-9-4.png)
-\begin{center}
+
 Correlation of T-test p-values of three imputation methods with the increasing number of missing variables
-\end{center}
+
 
 
 ``` r
@@ -596,9 +591,9 @@ sim_MNAR_Ttest_TPR_list_2 <- Ttest_P_cal_plot(impute_results=sim_MNAR_list, grou
 ```
 
 ![](vignette_files/figure-markdown_github/unnamed-chunk-9-5.png)
-\begin{center}
+
 TPR (p-value=.05) of three imputation methods with the increasing number of missing variables
-\end{center}
+
 
 
 ``` r
@@ -609,9 +604,9 @@ sim_MNAR_Ttest_TPR_list_3 <- Ttest_P_cal_plot(impute_results=sim_MNAR_list, grou
 ```
 
 ![](vignette_files/figure-markdown_github/unnamed-chunk-9-6.png)
-\begin{center}
+
 TPR (p-value=.01) of three imputation methods with the increasing number of missing variables
-\end{center}
+
 
 ## 3.3 GSimp with different iterations
 
@@ -670,9 +665,9 @@ GSimp_iters_MNAR_NRMSE_rank_list <- NRMSE_rank_cal_plot(GSimp_iters_MNAR_list,
 ```
 
 ![](vignette_files/figure-markdown_github/unnamed-chunk-12-1.png)
-\begin{center}
+
 SOR of different interations of GSimp with the increasing number of missing variables
-\end{center}
+
 
 
 # 4. Concluding remarks
