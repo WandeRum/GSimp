@@ -92,6 +92,8 @@ single_impute_iters <- function(x, y, y_miss, y_real=NULL, imp_model='glmnet_pre
 ## n_cores=1 is sequentially (non-parallel) computing
 multi_impute <- function(data_miss, iters_each=100, iters_all=20, initial='qrilc', lo=-Inf, hi='min', 
                          n_cores=1, imp_model='glmnet_pred', gibbs=data.frame(row=integer(), col=integer())) {
+  ## Convert to data.frame ##
+  data_miss %<>% data.frame()
   
   ## Make vector for iters_each ##
   if (length(iters_each)==1) {
@@ -116,7 +118,7 @@ multi_impute <- function(data_miss, iters_each=100, iters_all=20, initial='qrilc
   
   ## Make vectors for lo and hi ##
   if (length(lo)>1) {
-    if (length(lo)!=ncol(data_miss)) {stop('Length of lo should be equals to one or the number of variables')} 
+    if (length(lo)!=ncol(data_miss)) {stop('Length of lo should equal to one or the number of variables')} 
     else {lo_vec <- lo}
   } else if (is.numeric(lo)) {
     lo_vec <- rep(lo, ncol(data_miss))
@@ -126,7 +128,7 @@ multi_impute <- function(data_miss, iters_each=100, iters_all=20, initial='qrilc
   }
   
   if (length(hi)>1) {
-    if (length(hi)!=ncol(data_miss)) {stop('Length of hi should be equals to one or the number of variables')}
+    if (length(hi)!=ncol(data_miss)) {stop('Length of hi should equal to one or the number of variables')}
     else {hi_vec <- hi}
   } else if (is.numeric(hi)) {
     hi_vec <- rep(hi, ncol(data_miss))
@@ -134,7 +136,10 @@ multi_impute <- function(data_miss, iters_each=100, iters_all=20, initial='qrilc
     hi_fun <- getFunction(hi)
     hi_vec <- apply(data_miss, 2, function(x) x %>% na.omit %>% hi_fun)
   }
-  
+ 
+  # Check whether lo is lower than hi
+  if(!all(lo_vec < hi_vec)) {stop('lo should be lower than hi')}
+   
   ## Initialization using build-in method or input initial matrix ##
   if(is.character(initial)) {
     data_init <- miss_init(data_miss, method=initial)
@@ -151,23 +156,25 @@ multi_impute <- function(data_miss, iters_each=100, iters_all=20, initial='qrilc
     
     ## Parallel computing, don't use it! ##
     if (n_cores>1) {
+      cat(paste0('Parallel computing (n_cores=', n_cores, ')...'))
       ## Parallel on missing variables
-      cl <- makeCluster(n_cores, type='FORK')
+      cl <- makeCluster(n_cores)
       registerDoParallel(cl)
-      core_res <- foreach (k=miss_col_idx, .combine='cbind_abind') %dopar% {
+      core_res <- foreach (k=miss_col_idx, .combine='cbind_abind', .export=c('single_impute_iters', 'rnorm_trunc'), .packages=c('magrittr')) %dopar% {
+        source('Prediction_funcs.R')
         gibbs_sort_temp <- gibbs_sort[gibbs_sort$col==k, ]
         y_imp_res <- single_impute_iters(data_imp[, -k], data_imp[, k], data_miss[, k], imp_model=imp_model, 
                                          lo=lo_vec[k], hi=hi_vec[k], iters_each=iters_each[i], gibbs=gibbs_sort_temp$row)
         y_imp_df <- y_imp_res$y_imp %>% data.frame
         colnames(y_imp_df) <- colnames(data_miss)[k]
         gibbs_res <- y_imp_res$gibbs_res
-        list(y_imp_df=y_imp_df, gibbs_res=gibbs_res)
+        list(y_imp=y_imp_df, gibbs_res=gibbs_res)
       }
       stopCluster(cl)
-      y_imp_df <- core_res$y_imp_df
+      y_imp_df <- core_res$y_imp
       gibbs_res_final <- abind(gibbs_res_final, core_res$gibbs_res, along=3)
       miss_col_idx_match <- match(colnames(y_imp_df), colnames(data_miss))
-      data_imp[, miss_col_idx_match] <- core_res$y_imp_df
+      data_imp[, miss_col_idx_match] <- y_imp_df
     } else {
       ## Sequential computing ##
       gibbs_res_j <- array(NA, dim=c(3, 0, iters_each[i]))
@@ -186,5 +193,42 @@ multi_impute <- function(data_miss, iters_each=100, iters_all=20, initial='qrilc
   }
   gibbs_res_final_reorder <- gibbs_res_final[, gibbs_sort$order, ]
   return(list(data_imp=data_imp, gibbs_res=gibbs_res_final_reorder))
+}
+
+
+# GS_impute ---------------------------------------------------------------
+GS_impute <- multi_impute
+
+# pre_processing_GS_wrapper -----------------------------------------------
+pre_processing_GS_wrapper <- function(data) {
+  data_raw <- data
+  ## log transformation ##
+  data_raw_log <- data_raw %>% log()
+  ## Initialization ##
+  data_raw_log_qrilc <- impute.QRILC(data_raw_log) %>% extract2(1)
+  ## Centralization and scaling ##
+  data_raw_log_qrilc_sc <- scale_recover(data_raw_log_qrilc, method = 'scale')
+  ## Data after centralization and scaling ##
+  data_raw_log_qrilc_sc_df <- data_raw_log_qrilc_sc[[1]]
+  ## Parameters for centralization and scaling ##
+  ## For scaling recovery ##
+  data_raw_log_qrilc_sc_df_param <- data_raw_log_qrilc_sc[[2]]
+  ## NA position ##
+  NA_pos <- which(is.na(data_raw), arr.ind = T)
+  ## bala bala bala ##
+  data_raw_log_sc <- data_raw_log_qrilc_sc_df
+  data_raw_log_sc[NA_pos] <- NA
+  ## GSimp imputation with initialized data and missing data ##
+  result <- data_raw_log_sc %>% GS_impute(., iters_each=50, iters_all=10, 
+                                          initial = data_raw_log_qrilc_sc_df,
+                                          lo=-Inf, hi= 'min', n_cores=2,
+                                          imp_model='glmnet_pred')
+  data_imp_log_sc <- result$data_imp
+  ## Data recovery ##
+  data_imp <- data_imp_log_sc %>% 
+    scale_recover(., method = 'recover', 
+                  param_df = data_raw_log_qrilc_sc_df_param) %>% 
+    extract2(1) %>% exp()
+  return(data_imp)
 }
 
