@@ -8,7 +8,7 @@ of GSimp that contains, data pre-processing, simulated data generation,
 missing not at random (MNAR) generation, wrapper functions for different
 MNAR imputation methods (GSimp, QRILC, and kNN-TN) and evaluations of
 these methods. Core functions for GSimp and the real-world metabolomics
-datasets are available at: [GitHub](https://github.com/WandeRum/GSimp).
+datasets are available here.
 All content of GSimp is licensed under the [Creative Commons
 Attribution-NonCommercial-ShareAlike 4.0 International
 License](https://creativecommons.org/licenses/by-nc-sa/4.0/).
