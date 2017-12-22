@@ -4,7 +4,7 @@ require(impute)
 require(magrittr)
 require(imputeLCMD)
 source('MVI_global.R')
-
+source('GSimp.R')
 
 RF_wrapper <- function(data, ...) {
   result <- missForest(data, ...)[[1]]
@@ -61,4 +61,37 @@ Zero_wrapper <- function(data) {
 QRILC_wrapper <- function(data, ...) {
   result <- data %>% log %>% impute.QRILC(., ...) %>% extract2(1) %>% exp
   return(result)
+}
+
+# pre_processing_GS_wrapper -----------------------------------------------
+pre_processing_GS_wrapper <- function(data) {
+  data_raw <- data
+  ## log transformation ##
+  data_raw_log <- data_raw %>% log()
+  ## Initialization ##
+  data_raw_log_qrilc <- impute.QRILC(data_raw_log) %>% extract2(1)
+  ## Centralization and scaling ##
+  data_raw_log_qrilc_sc <- scale_recover(data_raw_log_qrilc, method = 'scale')
+  ## Data after centralization and scaling ##
+  data_raw_log_qrilc_sc_df <- data_raw_log_qrilc_sc[[1]]
+  ## Parameters for centralization and scaling ##
+  ## For scaling recovery ##
+  data_raw_log_qrilc_sc_df_param <- data_raw_log_qrilc_sc[[2]]
+  ## NA position ##
+  NA_pos <- which(is.na(data_raw), arr.ind = T)
+  ## bala bala bala ##
+  data_raw_log_sc <- data_raw_log_qrilc_sc_df
+  data_raw_log_sc[NA_pos] <- NA
+  ## GSimp imputation with initialized data and missing data ##
+  result <- data_raw_log_sc %>% GS_impute(., iters_each=50, iters_all=10, 
+                                          initial = data_raw_log_qrilc_sc_df,
+                                          lo=-Inf, hi= 'min', n_cores=2,
+                                          imp_model='glmnet_pred')
+  data_imp_log_sc <- result$data_imp
+  ## Data recovery ##
+  data_imp <- data_imp_log_sc %>% 
+    scale_recover(., method = 'recover', 
+                  param_df = data_raw_log_qrilc_sc_df_param) %>% 
+    extract2(1) %>% exp()
+  return(data_imp)
 }
