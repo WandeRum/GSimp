@@ -5,26 +5,46 @@ require(reshape2)
 require(ggplot2)
 require(ropls)
 source('MVI_global.R')
+source('Impute_wrapper.R')
 
 # MNAR generation and imputation ------------------------------------------
 MNAR_gen_imp <- function(data_c, mis_var_prop=seq(.1, .8, .1), var_mis_prop=seq(.1, .8, .1), 
                          impute_list=c('kNN_wrapper', 'SVD_wrapper', 'HM_wrapper', 'QRILC_wrapper'), cores=5) {
-  cl <- makeCluster(cores, type='FORK')
-  registerDoParallel(cl)
-  results <- foreach(prop=mis_var_prop) %dopar% {
-    data_m_res <- MNAR_generate(data_c, mis_var=prop, var_prop=var_mis_prop)
-    data_m <- data_m_res[[1]]
-    mis_idx <- data_m_res[[2]]
-    result_list <- list()
-    for (i in seq_along(impute_list)) {
-      method=impute_list[i]
-      print(method)
-      result_list[[i]] <- do.call(method, list(data_m))
+  if (cores==1) {
+    results <- list()
+    for (i in seq_along(mis_var_prop)) {
+      prop <- mis_var_prop[i]
+      data_m_res <- MNAR_generate(data_c, mis_var=prop, var_prop=var_mis_prop)
+      data_m <- data_m_res[[1]]
+      mis_idx <- data_m_res[[2]]
+      result_list <- list()
+      for (j in seq_along(impute_list)) {
+        method=impute_list[j]
+        print(method)
+        result_list[[j]] <- do.call(method, list(data_m))
+      }
+      result_list[[j+1]] <- mis_idx
+      results[[i]] <- result_list
     }
-    result_list[[i+1]] <- mis_idx
-    result_list
-  }
-  stopCluster(cl)
+  } else if (cores>1) {
+    cl <- makeCluster(cores)
+    registerDoParallel(cl)
+    results <- foreach(prop=mis_var_prop, .export=impute_list, .packages=c('magrittr', 'impute', 'imputeLCMD')) %dopar% {
+      source('MVI_global.R')
+      data_m_res <- MNAR_generate(data_c, mis_var=prop, var_prop=var_mis_prop)
+      data_m <- data_m_res[[1]]
+      mis_idx <- data_m_res[[2]]
+      result_list <- list()
+      for (i in seq_along(impute_list)) {
+        method=impute_list[i]
+        print(method)
+        result_list[[i]] <- do.call(method, list(data_m))
+      }
+      result_list[[i+1]] <- mis_idx
+      result_list
+    }
+    stopCluster(cl)
+  } else {cat('Improper argument: cores!')}
   return(list(results=results, data_c=data_c, impute_list=impute_list))
 }
 
@@ -240,3 +260,55 @@ Ttest_P_cal_plot <- function(impute_results, group=NULL, plot=T, p_cut=.05, x='M
   }
   return(list(P_df=P_df, P_df_melt=P_df_melt))
 }
+
+
+# Calculate PCA_Pro on a list of imputed data -----------------------------
+PCA_pro_list <- function(imp_list, nPCs=2, method_names) {
+  if(length(imp_list)!=length(method_names)) {
+    stop('imp_list not comparable with method_names')
+  }
+  
+  pro_res <- list()
+  pca_data <- lapply(imp_list, function(x) prcomp(x, center=T, scale.=T)$x[, 1:nPCs]) %>% set_names(method_names)
+  
+  pro_ss_df <- matrix(NA, length(method_names), length(method_names)) %>% as.data.frame()
+  colnames(pro_ss_df) <- method_names
+  row.names(pro_ss_df) <- method_names
+  method_combn <- combn(method_names, 2)
+  
+  for(i in 1:ncol(method_combn)) {
+    name_temp <- paste0(method_combn[2, i], '_', method_combn[1, i])
+    pro_res[[i]] <- procrustes(pca_data[[method_combn[2, i]]], pca_data[[method_combn[1, i]]], symmetric=T)
+    names(pro_res)[i] <- name_temp
+    pro_ss_df[method_combn[1, i], method_combn[2, i]] <- pro_ss_df[method_combn[2, i], method_combn[1, i]] <- pro_res[[i]]$ss
+  }
+  return(list(pro_ss_df = pro_ss_df, pro_res = pro_res))
+}
+
+# Calculate NRMSE on a list of imputed data -------------------------------
+NRMSE_list <- function(imp_list, miss_df, method_names) {
+  if(length(imp_list)!=length(method_names)) {
+    stop('imp_list not comparable with method_names')
+  }
+  
+  nrmse_res <- matrix(NA, length(method_names), length(method_names)) %>% as.data.frame()
+  colnames(nrmse_res) <- method_names
+  row.names(nrmse_res) <- method_names
+  method_combn <- combn(method_names, 2)
+  
+  imp_list_sc <- list()
+  log_sc_1 <- imp_list[[1]] %>% scale_recover()
+  sc_param <- log_sc_1[[2]]
+  for(i in 1:length(method_names)) {
+    imp_list_sc[[i]] <- scale_recover(imp_list[[i]], param_df = sc_param)[[1]]
+  }
+  imp_list_sc <- imp_list_sc %>% set_names(method_names)
+  
+  for(i in 1:ncol(method_combn)) {
+    name_temp <- paste0(method_combn[1, i], '_', method_combn[2, i])
+    nrmse_res[method_combn[1, i], method_combn[2, i]] <- nrmse_res[method_combn[2, i], method_combn[1, i]] <- 
+      nrmse(imp_list_sc[[method_combn[1, i]]], miss_df[,col_na], imp_list_sc[[method_combn[2, i]]])
+  }
+  return(nrmse_res = nrmse_res)
+}
+
