@@ -1,15 +1,7 @@
----
-title: 'A Quick Tour of GSimp'
-output:
-  pdf_document:
-    latex_engine: xelatex
-    toc: yes
-  html_document: default
-  word_document: default
----
+# A Quick Tour of GSimp
 
-1. Introduction
-===============
+
+# 1. Introduction
 
 GSimp is a gibbs sampler based left-censored missing value imputation
 approach for metabolomics studies. This vignette provides a quick tour
@@ -45,10 +37,8 @@ studies. PLOS Computational Biology (under revision).
 
 **Trunc_KNN** contains kNN-TN algorithm and related functions developed by Jasmit S. Shah (https://doi.org/10.1186/s12859-017-1547-6)
 
-2. Preparation
-==============
-
-2.1 Packages and source code importing
+# 2. Preparation
+## 2.1 Packages and source code importing
 --------------------------------
 
 ``` r
@@ -84,8 +74,7 @@ Package Dependencies and Version
 | vegan        | 2.4-5      |
 
 
-2.2 Data Pre-processing
------------------------
+## 2.2 Data Pre-processing
 
 In GSimp, we recommend data pre-processing steps as following:
 
@@ -135,8 +124,7 @@ pre_processing_GS_wrapper <- function(data) {
 }
 ```
 
-3. GSimp in a nutshell
-======================
+# 3. GSimp in a nutshell
 
 The function *GS\_impute* is the core function for the imputation of
 missing data and tracing the Gibbs sampler with certain missing
@@ -201,9 +189,7 @@ Outputs of *GS\_impute*:
     dimension represents missing elements you specified and the third
     dimension represents the iterations.
 
-3.1 GSimp in real-world missing data sets
----------------------------------
-
+## 3.1 GSimp in real-world missing data sets
 ### 3.1.1 Data sets
 
 The untargeted GC/MS dataset contains 37 samples and 112 variables with
@@ -481,9 +467,7 @@ plot(PCA_res$pro_res$HM_GSimp)
 PCA-Procrustes between GSimp (points) and HM (targets)
 \end{center}
 
-3.2 GSimp in simulated data sets
---------------------------------
-
+## 3.2 GSimp in simulated data sets
 ### 3.2.1 Simulated dataset generation
 
 For the simulation dataset, we first calculated the covariance matrix
@@ -622,8 +606,7 @@ sim_MNAR_Ttest_TPR_list_3 <- Ttest_P_cal_plot(impute_results=sim_MNAR_list, grou
 TPR (p-value=.01) of three imputation methods with the increasing number of missing variables
 \end{center}
 
-3.3 GSimp with different iterations
------------------------------------
+## 3.3 GSimp with different iterations
 
 Since GSimp employed an iterative Gibbs sampler method, a large number
 of iterations (iters\_all=20, iters\_each=100) are preferable for the
@@ -685,8 +668,7 @@ SOR of different interations of GSimp with the increasing number of missing vari
 \end{center}
 
 
-4. Concluding remarks
-=====================
+# 4. Concluding remarks
 
 GSimp is a convenient software for the imputation of left-censored MNAR data. With
 proper modifications (e.g., truncation points (**lo** and **hi**), pre-processing approaches), GSimp can be applicable
