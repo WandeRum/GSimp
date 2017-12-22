@@ -1,0 +1,58 @@
+---
+title: "Simulation data generation"
+author: "Rum Wei"
+date: "12/18/2017"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document: default
+  word_document: default
+---
+
+## 1.Import real data and calculate covariance
+```{r cache=T}
+options(stringsAsFactors = F)
+require(magrittr)
+require(pheatmap)
+require(mvtnorm)
+
+data_raw <- read.csv('real_data.csv', row.names=1)
+data_lg_sc <- data_raw %>% log %>% scale
+cov_mat <- cov(data_lg_sc)
+pheatmap(cov_mat, cluster_rows=F, cluster_cols=F, show_rownames=F, show_colnames=F, 
+         main='Covariance of real data')
+```
+
+## 2.Simulation dataset generation (part-1, first 80 samples as first group)
+```{r cache=T}
+set.seed(123)
+data_sim_0 <- rmvnorm(80, mean=rnorm(nrow(cov_mat), sd=.5), sigma=cov_mat, method='svd')
+cov_mat_sim_0 <- cov(data_sim_0)
+pheatmap(cov_mat_sim_0, cluster_rows=F, cluster_cols=F, show_rownames=F, show_colnames=F, 
+         main='Covariance of sim data-0 (group-0)')
+```
+
+## 3.Simulation dataset generation (part-2, second 80 samples as second group)
+```{r cache=T}
+set.seed(321)
+data_sim_1 <- rmvnorm(80, mean=rnorm(nrow(cov_mat), sd=.5), sigma=cov_mat, method='svd')
+cov_mat_sim_1 <- cov(data_sim_1)
+pheatmap(cov_mat_sim_1, cluster_rows=F, cluster_cols=F, show_rownames=F, show_colnames=F, 
+         main='Covariance of sim data-1 (group-1)')
+```
+
+## 4.Simulation dataset generation (part-3, stack two groups together)
+```{r cache=T}
+data_sim <- rbind(data_sim_0, data_sim_1)
+data_sim_sc <- scale(data_sim)
+cov_mat_sim <- cov(data_sim_sc)
+pheatmap(cov_mat_sim, cluster_rows=F, cluster_cols=F, show_rownames=F, show_colnames=F, 
+         main='Covariance of complete sim data (group-0 & 1)')
+```
+
+## 5.T-test on two groups
+```{r cache=T}
+group <- rep(c(0, 1), each=80) %>% as.factor
+sim_pvals <- apply(data_sim_sc, 2, function(x) t.test(x ~ group)$p.value)
+sim_pvals[1:10]
+```
