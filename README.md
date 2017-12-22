@@ -1,6 +1,5 @@
 # A Quick Tour of GSimp
 
-
 # 1. Introduction
 
 GSimp is a gibbs sampler based left-censored missing value imputation
@@ -19,23 +18,31 @@ Chen, T., Ni, Y., & Jia, W. (2017). GSimp: A Gibbs sampler based
 left-censored missing value imputation approach for metabolomics
 studies. PLOS Computational Biology (under revision).
 
-**GSimp simulation.Rmd** is a vignette of using GSimp for the MNAR imputation and comparing GSimp with other imputation methods on simulation dataset. It also contains a simulation dataset generation algorithm.
-
-**GSimp simulation.pdf** was knited by **GSimp simulation.Rmd**
-
 **GSimp.R** contains the core functions for GSimp.
 
-**MNAR_evaluation.R** contains MNAR generation and evaluation functions which are part of our missing value imputation evaluation pipeline.
+**GSimp_evaluation.R** contains MNAR generation and evaluation functions which are part of our missing value imputation evaluation pipeline.
+
+**Impute_wrapper.R** contains wrapper functions for different imputation methods (contains *pre_processing_GS_wrapper*).
 
 **MVI_global.R** contains some basic global functions.
 
 **Prediction_funcs.R** contains wrapper functions for different prediction models.
 
+**simulation_generation.Rmd** contains a simulation dataset generation algorithm.
+
+**simulation_generation.pdf** was knited by **simulation_generation.Rmd**.
+
 **real_data.csv** is a real-world targeted metabolomics dataset contains both FFAs and BAs.
 
-**data_sim.csv** is the simulated dataset (details could be found in **GSimp simulation.Rmd**)
+**data_sim.csv** is the simulated dataset (details could be found in **simulation_generation.Rmd**).
 
-**Trunc_KNN** contains kNN-TN algorithm and related functions developed by Jasmit S. Shah (https://doi.org/10.1186/s12859-017-1547-6)
+**targeted_data.csv** is a targeted LC/MS data with missing values.
+
+**untargeted_data.csv** is an untargeted GC/MS data with missing values after manually missing retrieval.
+
+**Trunc_KNN** contains kNN-TN algorithm and related functions developed by Jasmit S. Shah (https://doi.org/10.1186/s12859-017-1547-6).
+
+**vignette_files** contains files for README.md.
 
 # 2. Preparation
 ## 2.1 Packages and source code importing
@@ -200,7 +207,7 @@ majority of missingness in untargeted GC/MS-based metabolomics data are
 MCAR/MAR. The targeted LC/MS dataset contains 40 samples and 41 variables with 88
 missing elements are failed to be quantified due to LOQ/LOD.
 
-![](GSimp_files/figure-markdown_github/compare.eps)
+![](vignette_files/figure-markdown_github/compare.eps)
 
 The following analyses are tested on post-missing retrieval untargeted GC/MS dataset and targted LC/MS dataset.
 
@@ -261,7 +268,7 @@ sim_HM_wrapper <- function(data) {
 untargeted_data <- read.csv('untargeted_data.csv', row.names=1)
 missmap(untargeted_data, col=c("black", "grey"), legend=FALSE)
 ```
-![](GSimp_files/figure-markdown_github/Missmap_untargeted.png)
+![](vignette_files/figure-markdown_github/Missmap_untargeted.png)
 
 Each black cell represents a missing value.
 
@@ -337,7 +344,7 @@ PCA Procrustes results between imputation methods
 plot(PCA_res$pro_res$trKNN_GSimp)
 ```
 
-![](GSimp_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](vignette_files/figure-markdown_github/unnamed-chunk-4-1.png)
 \begin{center}
 PCA-Procrustes between GSimp (points) and kNN-TN (targets)
 \end{center}
@@ -346,7 +353,7 @@ PCA-Procrustes between GSimp (points) and kNN-TN (targets)
 plot(PCA_res$pro_res$QRILC_GSimp)
 ```
 
-![](GSimp_files/figure-markdown_github/unnamed-chunk-4-2.png)
+![](vignette_files/figure-markdown_github/unnamed-chunk-4-2.png)
 \begin{center}
 PCA-Procrustes between GSimp (points) and QRILC (targets)
 \end{center}
@@ -355,7 +362,7 @@ PCA-Procrustes between GSimp (points) and QRILC (targets)
 plot(PCA_res$pro_res$HM_GSimp)
 ```
 
-![](GSimp_files/figure-markdown_github/unnamed-chunk-4-3.png)
+![](vignette_files/figure-markdown_github/unnamed-chunk-4-3.png)
 \begin{center}
 PCA-Procrustes between GSimp (points) and HM (targets)
 \end{center}
@@ -366,7 +373,7 @@ PCA-Procrustes between GSimp (points) and HM (targets)
 targeted_data <- read.csv('targeted_data.csv', row.names=1)
 missmap(targeted_data, col=c("black", "grey"), legend=FALSE)
 ```
-![](GSimp_files/figure-markdown_github/Missmap_targeted.png)
+![](vignette_files/figure-markdown_github/Missmap_targeted.png)
 
 Each black cell represents a missing value.
 
@@ -444,7 +451,7 @@ PCA Procrustes results between imputation methods
 plot(PCA_res$pro_res$trKNN_GSimp)
 ```
 
-![](GSimp_files/figure-markdown_github/unnamed-chunk-5-1.png)
+![](vignette_files/figure-markdown_github/unnamed-chunk-5-1.png)
 \begin{center}
 PCA-Procrustes between GSimp (points) and kNN-TN (targets)
 \end{center}
@@ -453,7 +460,7 @@ PCA-Procrustes between GSimp (points) and kNN-TN (targets)
 plot(PCA_res$pro_res$QRILC_GSimp)
 ```
 
-![](GSimp_files/figure-markdown_github/unnamed-chunk-5-2.png)
+![](vignette_files/figure-markdown_github/unnamed-chunk-5-2.png)
 \begin{center}
 PCA-Procrustes between GSimp (points) and QRILC (targets)
 \end{center}
@@ -462,12 +469,14 @@ PCA-Procrustes between GSimp (points) and QRILC (targets)
 plot(PCA_res$pro_res$HM_GSimp)
 ```
 
-![](GSimp_files/figure-markdown_github/unnamed-chunk-5-3.png)
+![](vignette_files/figure-markdown_github/unnamed-chunk-5-3.png)
 \begin{center}
 PCA-Procrustes between GSimp (points) and HM (targets)
 \end{center}
 
-## 3.2 GSimp in simulated data sets
+3.2 GSimp in simulated data sets
+--------------------------------
+
 ### 3.2.1 Simulated dataset generation
 
 For the simulation dataset, we first calculated the covariance matrix
@@ -534,7 +543,7 @@ sim_MNAR_NRMSE_rank_list <- NRMSE_rank_cal_plot(sim_MNAR_list, plot=T, x='Miss_N
                                                 shapes=c(17, 15, 3))
 ```
 
-![](GSimp_files/figure-markdown_github/unnamed-chunk-9-1.png)
+![](vignette_files/figure-markdown_github/unnamed-chunk-9-1.png)
 \begin{center}
 SOR of three imputation methods with the increasing number of missing variables
 \end{center}
@@ -548,7 +557,7 @@ sim_MNAR_PCA_ProSS_list <- Procrustes_cal_plot(sim_MNAR_list, DR='PCA', nPCs=2, 
                                                shapes=c(17, 15, 3))
 ```
 
-![](GSimp_files/figure-markdown_github/unnamed-chunk-9-2.png)
+![](vignette_files/figure-markdown_github/unnamed-chunk-9-2.png)
 \begin{center}
 PCA-Procrustes results of three imputation methods with the increasing number of missing variables
 \end{center}
@@ -561,7 +570,7 @@ sim_MNAR_PLS_ProSS_list <- Procrustes_cal_plot(sim_MNAR_list, DR='PLS', nPCs=2, 
                                                shapes=c(17, 15, 3))
 ```
 
-![](GSimp_files/figure-markdown_github/unnamed-chunk-9-3.png)
+![](vignette_files/figure-markdown_github/unnamed-chunk-9-3.png)
 \begin{center}
 PLS-Procrustes results of three imputation methods with the increasing number of missing variables
 \end{center}
@@ -574,7 +583,7 @@ sim_MNAR_Ttest_Cor_list <- Ttest_cor_cal_plot(sim_MNAR_list, group=group, plot=T
                                               shapes=c(17, 15, 3))
 ```
 
-![](GSimp_files/figure-markdown_github/unnamed-chunk-9-4.png)
+![](vignette_files/figure-markdown_github/unnamed-chunk-9-4.png)
 \begin{center}
 Correlation of T-test p-values of three imputation methods with the increasing number of missing variables
 \end{center}
@@ -588,7 +597,7 @@ sim_MNAR_Ttest_TPR_list_2 <- Ttest_P_cal_plot(impute_results=sim_MNAR_list, grou
                                                 shapes=c(17, 15, 3))
 ```
 
-![](GSimp_files/figure-markdown_github/unnamed-chunk-9-5.png)
+![](vignette_files/figure-markdown_github/unnamed-chunk-9-5.png)
 \begin{center}
 TPR (p-value=.05) of three imputation methods with the increasing number of missing variables
 \end{center}
@@ -601,12 +610,13 @@ sim_MNAR_Ttest_TPR_list_3 <- Ttest_P_cal_plot(impute_results=sim_MNAR_list, grou
                                                 shapes=c(17, 15, 3))
 ```
 
-![](GSimp_files/figure-markdown_github/unnamed-chunk-9-6.png)
+![](vignette_files/figure-markdown_github/unnamed-chunk-9-6.png)
 \begin{center}
 TPR (p-value=.01) of three imputation methods with the increasing number of missing variables
 \end{center}
 
-## 3.3 GSimp with different iterations
+3.3 GSimp with different iterations
+-----------------------------------
 
 Since GSimp employed an iterative Gibbs sampler method, a large number
 of iterations (iters\_all=20, iters\_each=100) are preferable for the
@@ -662,16 +672,16 @@ GSimp_iters_MNAR_NRMSE_rank_list <- NRMSE_rank_cal_plot(GSimp_iters_MNAR_list,
                                                         plot=T, x='Miss_Num')
 ```
 
-![](GSimp_files/figure-markdown_github/unnamed-chunk-12-1.png)
+![](vignette_files/figure-markdown_github/unnamed-chunk-12-1.png)
 \begin{center}
 SOR of different interations of GSimp with the increasing number of missing variables
 \end{center}
 
 
-# 4. Concluding remarks
+4. Concluding remarks
+=====================
 
 GSimp is a convenient software for the imputation of left-censored MNAR data. With
 proper modifications (e.g., truncation points (**lo** and **hi**), pre-processing approaches), GSimp can be applicable
 to handle different types of missingness (e.g., right-censored MNAR, MCAR, MAR) and different types of -omics
 studies, which is deserved to be further explored in the future.
-
