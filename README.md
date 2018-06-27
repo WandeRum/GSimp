@@ -1,3 +1,5 @@
+[![DOI:10.1371/journal.pcbi.1005973](https://zenodo.org/badge/DOI/10.1371/journal.pcbi.1005973.svg)](https://doi.org/10.1371/journal.pcbi.1005973)
+
 # A Quick Tour of GSimp
 
 # 1. Introduction
