@@ -13,6 +13,7 @@ source('Prediction_funcs.R')
 rnorm_trunc <- function (n, mu, std, lo=-Inf, hi=Inf) {
   p_lo <- pnorm(lo, mu, std)
   p_hi <- pnorm(hi, mu, std)
+  p_hi[p_hi < .01] <- .01
   u <- runif(n, p_lo, p_hi)
   return(qnorm(u, mu, std))
 }
