@@ -50,8 +50,8 @@ scale_recover <- function(data, method='scale', param_df = NULL) {
     }
   } else {
     if (method=='scale') {
-      param_df <- data.frame(mean=sapply(data, function(x) mean(x, na.rm=T)), 
-                             std=sapply(data, function(x) sd(x, na.rm=T)))
+      param_df <- data.frame(mean=apply(data, 2, function(x) mean(x, na.rm=T)), 
+                             std=apply(data, 2, function(x) sd(x, na.rm=T)))
       data_res[] <- scale(data, center=param_df$mean, scale=param_df$std)
     } else {stop('no param_df found for recover...')}
   }
